@@ -5327,6 +5327,38 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
 
 #if USE_TMVP
                     EbReferenceObject *ref_obj = (EbReferenceObject *)pcs_ptr->ref_pic_ptr_array[list_idx][ref_idx]->object_ptr;
+                    void av1_copy_frame_mvs(PictureControlSet *pcs_ptr, const Av1Common *const cm, MbModeInfo mi,
+                        int mi_row, int mi_col, int x_mis, int y_mis,
+                        EbReferenceObject *object_ptr) {
+                        const int frame_mvs_stride = ROUND_POWER_OF_TWO(cm->mi_cols, 1);
+                        MV_REF *  frame_mvs = object_ptr->mvs + (mi_row >> 1) * frame_mvs_stride + (mi_col >> 1);
+                        x_mis = ROUND_POWER_OF_TWO(x_mis, 1);
+                        y_mis = ROUND_POWER_OF_TWO(y_mis, 1);
+                        int w, h;
+
+                        for (h = 0; h < y_mis; h++) {
+                            MV_REF *mv = frame_mvs;
+                            for (w = 0; w < x_mis; w++) {
+                                mv->ref_frame = NONE_FRAME;
+                                mv->mv.as_int = 0;
+
+                                for (int idx = 0; idx < 2; ++idx) {
+                                    MvReferenceFrame ref_frame = mi.block_mi.ref_frame[idx];
+                                    if (ref_frame > INTRA_FRAME) {
+                                        int8_t ref_idx = pcs_ptr->ref_frame_side[ref_frame];
+                                        if (ref_idx) continue;
+                                        if ((abs(mi.block_mi.mv[idx].as_mv.row) > REFMVS_LIMIT) ||
+                                            (abs(mi.block_mi.mv[idx].as_mv.col) > REFMVS_LIMIT))
+                                            continue;
+                                        mv->ref_frame = ref_frame;
+                                        mv->mv.as_int = mi.block_mi.mv[idx].as_int;
+                }
+        }
+                                mv++;
+    }
+                            frame_mvs += frame_mvs_stride;
+}
+}
 
                     if (!(ref_obj == NULL || ref_obj->frame_type == KEY_FRAME || ref_obj->frame_type == INTRA_ONLY_FRAME)) {
 
