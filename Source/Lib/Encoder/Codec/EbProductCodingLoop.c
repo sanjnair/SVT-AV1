@@ -5341,7 +5341,7 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
                         MV_REF *frame_mvs = ref_obj->mvs + (mi_row >> 1) * frame_mvs_stride + (mi_col >> 1);
 
                         // Colocated area to parse= f(8x8)
-                        int size_colocated_area = 16;
+                        int size_colocated_area = 2;
                         int start_colocated_area_x = -(size_colocated_area >> 1);
                         int end_colocated_area_x   = +(size_colocated_area >> 1);
                         int start_colocated_area_y = -(size_colocated_area >> 1);
@@ -5380,7 +5380,7 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
                                 }
                             }
                         }
-                        search_area_multiplier = 0;
+                        //search_area_multiplier = MAX(6, search_area_multiplier);
                     }
                     else {
                         for (int8_t mvp_index = 0; mvp_index < context_ptr->mvp_count[list_idx][ref_idx]; mvp_index++) {
