@@ -5327,57 +5327,42 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
 
 #if USE_TMVP
                     EbReferenceObject *ref_obj = (EbReferenceObject *)pcs_ptr->ref_pic_ptr_array[list_idx][ref_idx]->object_ptr;
-                    void av1_copy_frame_mvs(PictureControlSet *pcs_ptr, const Av1Common *const cm, MbModeInfo mi,
-                        int mi_row, int mi_col, int x_mis, int y_mis,
-                        EbReferenceObject *object_ptr) {
-                        const int frame_mvs_stride = ROUND_POWER_OF_TWO(cm->mi_cols, 1);
-                        MV_REF *  frame_mvs = object_ptr->mvs + (mi_row >> 1) * frame_mvs_stride + (mi_col >> 1);
-                        x_mis = ROUND_POWER_OF_TWO(x_mis, 1);
-                        y_mis = ROUND_POWER_OF_TWO(y_mis, 1);
-                        int w, h;
 
-                        for (h = 0; h < y_mis; h++) {
-                            MV_REF *mv = frame_mvs;
-                            for (w = 0; w < x_mis; w++) {
-                                mv->ref_frame = NONE_FRAME;
-                                mv->mv.as_int = 0;
-
-                                for (int idx = 0; idx < 2; ++idx) {
-                                    MvReferenceFrame ref_frame = mi.block_mi.ref_frame[idx];
-                                    if (ref_frame > INTRA_FRAME) {
-                                        int8_t ref_idx = pcs_ptr->ref_frame_side[ref_frame];
-                                        if (ref_idx) continue;
-                                        if ((abs(mi.block_mi.mv[idx].as_mv.row) > REFMVS_LIMIT) ||
-                                            (abs(mi.block_mi.mv[idx].as_mv.col) > REFMVS_LIMIT))
-                                            continue;
-                                        mv->ref_frame = ref_frame;
-                                        mv->mv.as_int = mi.block_mi.mv[idx].as_int;
-                }
-        }
-                                mv++;
-    }
-                            frame_mvs += frame_mvs_stride;
-}
-}
 
                     if (!(ref_obj == NULL || ref_obj->frame_type == KEY_FRAME || ref_obj->frame_type == INTRA_ONLY_FRAME)) {
 
-                        for (int8_t mvp_index = 0; mvp_index < context_ptr->mvp_count[list_idx][ref_idx]; mvp_index++) {
 
 
-                            if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 8192 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 8192) {
-                                search_area_multiplier = MAX(6, search_area_multiplier);
-                            }
-                            else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 2048 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 2048) {
-                                search_area_multiplier = MAX(5, search_area_multiplier);
-                            }
-                            else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 512 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 512) {
-                                search_area_multiplier = MAX(4, search_area_multiplier);
-                            }
-                            else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 256 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 256) {
-                                search_area_multiplier = MAX(3, search_area_multiplier);
+                        Av1Common *cm = pcs_ptr->parent_pcs_ptr->av1_cm;
+                        const int frame_mvs_stride = ROUND_POWER_OF_TWO(cm->mi_cols, 1);
+
+                        int32_t  mi_row = context_ptr->blk_origin_y >> MI_SIZE_LOG2;
+                        int32_t  mi_col = context_ptr->blk_origin_x >> MI_SIZE_LOG2;
+                        MV_REF *frame_mvs = ref_obj->mvs + (mi_row >> 1) * frame_mvs_stride + (mi_col >> 1);
+
+                        // Colocated area to parse= f(8x8)
+                        int size_colocated_area = 16;
+                        int start_colocated_area_x = -(size_colocated_area >> 1);
+                        int end_colocated_area_x   = +(size_colocated_area >> 1);
+                        int start_colocated_area_y = -(size_colocated_area >> 1);
+                        int end_colocated_area_y   = +(size_colocated_area >> 1);
+
+                        start_colocated_area_x = (start_colocated_area_x < -(mi_col >> 1)) ? -(mi_col >> 1) : start_colocated_area_x;
+                        start_colocated_area_y = (start_colocated_area_y < -(mi_row >> 1)) ? -(mi_row >> 1) : start_colocated_area_y;
+                        end_colocated_area_x = (end_colocated_area_x > ((cm->mi_cols >> 1) - (mi_col >> 1))) ? ((cm->mi_cols >> 1) - (mi_col >> 1)) : end_colocated_area_x;
+                        end_colocated_area_y = (end_colocated_area_y > ((cm->mi_rows >> 1) - (mi_row >> 1))) ? ((cm->mi_rows >> 1) - (mi_row >> 1)) : end_colocated_area_y;
+                        for (int h = start_colocated_area_y; h < end_colocated_area_y; h++) {
+                            for (int w = start_colocated_area_x; w < end_colocated_area_x; w++) {
+                                MV_REF *mv = frame_mvs + w + (h * frame_mvs_stride);
+                                if (mv->ref_frame > INTRA_FRAME) {
+                                    if (ABS(mv->mv.as_mv.row) > (dist * 16) || ABS(mv->mv.as_mv.col) > (dist * 16)) {
+                                        search_area_multiplier = MAX(6, search_area_multiplier);
+                                        break;
+                                    }
+                                }
                             }
                         }
+                        //search_area_multiplier = MAX(6, search_area_multiplier);
                     }
                     else {
                         search_area_multiplier = MAX(6, search_area_multiplier);

@@ -604,7 +604,7 @@ extern "C" {
 #define FIX_HIGH_MOTION            1
 #define SPARSE_SEARCH              1
 
-#define USE_TMVP                   0
+#define USE_TMVP                   1
 #endif
 // END  SVT_01 /////////////////////////////////////////////////////////
 
