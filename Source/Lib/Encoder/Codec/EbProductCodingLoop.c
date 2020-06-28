@@ -5380,7 +5380,7 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
                                 }
                             }
                         }
-                        //search_area_multiplier = MAX(6, search_area_multiplier);
+                        search_area_multiplier = 0;
                     }
                     else {
                         for (int8_t mvp_index = 0; mvp_index < context_ptr->mvp_count[list_idx][ref_idx]; mvp_index++) {
