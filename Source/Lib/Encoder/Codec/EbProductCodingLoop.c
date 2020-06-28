@@ -5475,6 +5475,17 @@ void read_refine_me_mvs(PictureControlSet *pcs_ptr, ModeDecisionContext *context
         (context_ptr->blk_origin_y + input_picture_ptr->origin_y) * input_picture_ptr->stride_y +
         (context_ptr->blk_origin_x + input_picture_ptr->origin_x);
 
+
+#if REFACTOR_NSQ_MOTION_SEARCH
+    // Get parent_depth_idx_mds
+    uint16_t parent_depth_idx_mds = 0;
+    if (context_ptr->blk_geom->sq_size < ((scs_ptr->seq_header.sb_size == BLOCK_128X128) ? 128 : 64))
+        //Set parent to be considered
+        parent_depth_idx_mds =
+        (context_ptr->blk_geom->sqi_mds -
+        (context_ptr->blk_geom->quadi - 3) * ns_depth_offset[scs_ptr->seq_header.sb_size == BLOCK_128X128][context_ptr->blk_geom->depth]) -
+        parent_depth_offset[scs_ptr->seq_header.sb_size == BLOCK_128X128][context_ptr->blk_geom->depth];
+#endif
     for (uint32_t ref_it = 0; ref_it < pcs_ptr->parent_pcs_ptr->tot_ref_frame_types; ++ref_it) {
         MvReferenceFrame ref_pair = pcs_ptr->parent_pcs_ptr->ref_frame_type_arr[ref_it];
 
@@ -5507,6 +5518,12 @@ void read_refine_me_mvs(PictureControlSet *pcs_ptr, ModeDecisionContext *context
                 int16_t me_mv_y;
 #if ME_MEM_OPT
 #if REMOVE_MRP_MODE
+#if REFACTOR_NSQ_MOTION_SEARCH
+                if ((context_ptr->blk_geom->bwidth != context_ptr->blk_geom->bheight) && context_ptr->md_local_blk_unit[parent_depth_idx_mds].avail_blk_flag) {
+                    me_mv_x = (context_ptr->sb_me_mv[parent_depth_idx_mds][list_idx][ref_idx][0] + 4) & ~0x07;
+                    me_mv_y = (context_ptr->sb_me_mv[parent_depth_idx_mds][list_idx][ref_idx][1] + 4) & ~0x07;                 
+                } else {
+#endif
                 if (list_idx == 0) {
                     me_mv_x = (me_results->me_mv_array[context_ptr->me_block_offset*MAX_PA_ME_MV + ref_idx].x_mv) << 1;
                     me_mv_y = (me_results->me_mv_array[context_ptr->me_block_offset*MAX_PA_ME_MV + ref_idx].y_mv) << 1;
@@ -5515,6 +5532,9 @@ void read_refine_me_mvs(PictureControlSet *pcs_ptr, ModeDecisionContext *context
                     me_mv_x = (me_results->me_mv_array[context_ptr->me_block_offset*MAX_PA_ME_MV + 4 + ref_idx].x_mv) << 1;
                     me_mv_y = (me_results->me_mv_array[context_ptr->me_block_offset*MAX_PA_ME_MV + 4 + ref_idx].y_mv) << 1;
                 }
+#if REFACTOR_NSQ_MOTION_SEARCH
+                }
+#endif
 #else
                 uint32_t pu_stride = scs_ptr->mrp_mode == 0 ? ME_MV_MRP_MODE_0 : ME_MV_MRP_MODE_1;
                 if (list_idx == 0) {
@@ -5620,7 +5640,7 @@ void read_refine_me_mvs(PictureControlSet *pcs_ptr, ModeDecisionContext *context
 #if PERFORM_SUB_PEL_MD
 
                 if (context_ptr->md_subpel_search_ctrls.enabled) {
-
+#if !REFACTOR_NSQ_MOTION_SEARCH
                     // Get parent_depth_idx_mds
                     uint16_t parent_depth_idx_mds = 0;
                     if (context_ptr->blk_geom->sq_size <
@@ -5632,7 +5652,7 @@ void read_refine_me_mvs(PictureControlSet *pcs_ptr, ModeDecisionContext *context
                             [context_ptr->blk_geom->depth]) -
                         parent_depth_offset[scs_ptr->seq_header.sb_size == BLOCK_128X128]
                         [context_ptr->blk_geom->depth];
-
+#endif
                     // If 4x4 but do_4x4 == 0 then inherit Parent MV (already refined)
                     if (!context_ptr->md_subpel_search_ctrls.do_4x4 && (context_ptr->blk_geom->bsize == BLOCK_4X4) && context_ptr->md_local_blk_unit[parent_depth_idx_mds].avail_blk_flag) {
 

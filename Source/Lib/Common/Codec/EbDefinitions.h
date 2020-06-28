@@ -595,6 +595,10 @@ extern "C" {
 #define JUNE26_ADOPTIONS    1
 #define ENABLE_ADAPTIVE_NSQ_ALL_FRAMES 1    // Enable the adaptive NSQ algorithm for all frames (no longer REF only)
 
+
+
+#define REFACTOR_NSQ_MOTION_SEARCH 1
+
 #endif
 // END  SVT_01 /////////////////////////////////////////////////////////
 
