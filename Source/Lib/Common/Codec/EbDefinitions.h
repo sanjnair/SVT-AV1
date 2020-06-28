@@ -598,6 +598,8 @@ extern "C" {
 
 
 #define REFACTOR_NSQ_MOTION_SEARCH 1
+
+
 #define ME_USE_NSC_SETTING         1 
 #define FIX_HIGH_MOTION            1
 #define SPARSE_SEARCH              1
