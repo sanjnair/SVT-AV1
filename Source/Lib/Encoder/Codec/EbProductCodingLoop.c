@@ -5355,17 +5355,56 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
                             for (int w = start_colocated_area_x; w < end_colocated_area_x; w++) {
                                 MV_REF *mv = frame_mvs + w + (h * frame_mvs_stride);
                                 if (mv->ref_frame > INTRA_FRAME) {
-                                    if (ABS(mv->mv.as_mv.row) > (dist * 16) || ABS(mv->mv.as_mv.col) > (dist * 16)) {
+
+                                    if (ABS(mv->mv.as_mv.row) > 8192 || ABS(mv->mv.as_mv.col) > 8192) {
                                         search_area_multiplier = MAX(6, search_area_multiplier);
-                                        break;
                                     }
+                                    else if (ABS(mv->mv.as_mv.row) > 2048 || ABS(mv->mv.as_mv.col) > 2048) {
+                                        search_area_multiplier = MAX(5, search_area_multiplier);
+                                    }
+                                    else if (ABS(mv->mv.as_mv.row) > 512 || ABS(mv->mv.as_mv.col) > 512) {
+                                        search_area_multiplier = MAX(4, search_area_multiplier);
+                                    }
+                                    //else if (ABS(mv->mv.as_mv.row) > 256 || ABS(mv->mv.as_mv.col) > 256) {
+                                    //    search_area_multiplier = MAX(3, search_area_multiplier);
+                                    //}
+                                    //else if (ABS(mv->mv.as_mv.row) > 128 || ABS(mv->mv.as_mv.col) > 128) {
+                                    //    search_area_multiplier = MAX(2, search_area_multiplier);
+                                    //}
+                                    //else if (ABS(mv->mv.as_mv.row) > 64 || ABS(mv->mv.as_mv.col) > 64) {
+                                    //    search_area_multiplier = MAX(1, search_area_multiplier);
+                                    //}
+
+
+
                                 }
                             }
                         }
                         //search_area_multiplier = MAX(6, search_area_multiplier);
                     }
                     else {
-                        search_area_multiplier = MAX(6, search_area_multiplier);
+                        for (int8_t mvp_index = 0; mvp_index < context_ptr->mvp_count[list_idx][ref_idx]; mvp_index++) {
+
+
+                            if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 8192 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 8192 || *me_mv_x > 8192 || *me_mv_y > 8192) {
+                                search_area_multiplier = MAX(6, search_area_multiplier);
+                            }
+                            else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 2048 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 2048 || *me_mv_x > 2048 || *me_mv_y > 2048) {
+                                search_area_multiplier = MAX(5, search_area_multiplier);
+                            }
+                            else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 512 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 512 || *me_mv_x > 512 || *me_mv_y > 512) {
+                                search_area_multiplier = MAX(4, search_area_multiplier);
+                            }
+                            else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 256 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 256 || *me_mv_x > 256 || *me_mv_y > 256) {
+                                search_area_multiplier = MAX(3, search_area_multiplier);
+                            }
+                            else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 128 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 128 || *me_mv_x > 128 || *me_mv_y > 128) {
+                                search_area_multiplier = MAX(2, search_area_multiplier);
+                            }
+                            else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 64 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 64 || *me_mv_x > 64 || *me_mv_y > 64) {
+                                search_area_multiplier = MAX(1, search_area_multiplier);
+                            }
+                        }
                     }
 #else
                     // fixed comb 0
