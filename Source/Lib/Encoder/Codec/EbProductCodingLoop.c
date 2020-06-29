@@ -5475,7 +5475,7 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
 
         uint32_t post_check_distortion = best_search_distortion;
 
-        //if (post_check_distortion < pre_check_distortion) 
+        if (post_check_distortion < pre_check_distortion) 
         {     
 
             *me_mv_x = best_search_mvx;
