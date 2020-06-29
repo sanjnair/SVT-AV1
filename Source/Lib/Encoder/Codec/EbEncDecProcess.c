@@ -1897,11 +1897,7 @@ void md_sq_motion_search_controls(ModeDecisionContext *mdctxt, uint8_t md_sq_mv_
     case 1:
         md_sq_motion_search_ctrls->enabled = 1;
         md_sq_motion_search_ctrls->use_ssd = 0;
-#if QUICK_CHECK
-        md_sq_motion_search_ctrls->sparse_search_step = 8;
-#else
         md_sq_motion_search_ctrls->sparse_search_step = 2;
-#endif
         md_sq_motion_search_ctrls->sparse_search_area_width = 75;
         md_sq_motion_search_ctrls->sparse_search_area_height = 75;
 

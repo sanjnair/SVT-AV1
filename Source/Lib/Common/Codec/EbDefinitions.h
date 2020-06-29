@@ -605,6 +605,7 @@ extern "C" {
 #define SPARSE_SEARCH              1
 
 #define USE_TMVP                   1
+#define QUICK_CHECK                1
 #endif
 // END  SVT_01 /////////////////////////////////////////////////////////
 
