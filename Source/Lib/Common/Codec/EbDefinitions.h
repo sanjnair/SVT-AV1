@@ -599,8 +599,9 @@ extern "C" {
 #define FIX_HIGH_MOTION            1
 
 #define TOWARDS_FINAL_0            0
+#define TOWARDS_FINAL_1            1
 #define TOWARDS_FINAL_2            0
-#define TOWARDS_FINAL_3            1
+#define TOWARDS_FINAL_3            0
 #endif
 // END  SVT_01 /////////////////////////////////////////////////////////
 
