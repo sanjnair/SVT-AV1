@@ -602,6 +602,7 @@ extern "C" {
 #define TOWARDS_FINAL_1            0
 #define TOWARDS_FINAL_2            0
 #define TOWARDS_FINAL_3            0
+#define TOWARDS_FINAL_4            0 // Action for all
 #endif
 // END  SVT_01 /////////////////////////////////////////////////////////
 

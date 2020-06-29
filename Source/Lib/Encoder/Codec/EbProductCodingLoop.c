@@ -5378,8 +5378,11 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
                         }
                     }
                 }
-
+#if TOWARDS_FINAL_4
+    search_area_multiplier = 6;
+#endif
     if (search_area_multiplier) {
+
         int8_t round_up = ((dist % 8) == 0) ? 0 : 1; // factor to slowdown the ME search region growth to MAX
         dist = ((dist * 5) / 8) + round_up;
 
