@@ -595,6 +595,7 @@ extern "C" {
 #define JUNE26_ADOPTIONS    1
 #define ENABLE_ADAPTIVE_NSQ_ALL_FRAMES 1    // Enable the adaptive NSQ algorithm for all frames (no longer REF only)
 
+#define MEM_OPT_UV_MODE     1 // Memory optimization for independant uv mode
 #endif
 // END  SVT_01 /////////////////////////////////////////////////////////
 
