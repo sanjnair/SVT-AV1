@@ -5252,8 +5252,7 @@ void md_nsq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *conte
 
 #if FIX_HIGH_MOTION
 void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *context_ptr,
-    EbPictureBufferDesc *input_picture_ptr, uint32_t input_origin_index,
-    uint32_t blk_origin_index, MvReferenceFrame frame_type, uint8_t list_idx, uint8_t ref_idx, int16_t *me_mv_x, int16_t *me_mv_y) {
+    EbPictureBufferDesc *input_picture_ptr, uint32_t input_origin_index, uint8_t list_idx, uint8_t ref_idx, int16_t *me_mv_x, int16_t *me_mv_y) {
 
     int16_t  best_search_mvx = (int16_t)~0;
     int16_t  best_search_mvy = (int16_t)~0;
@@ -5383,7 +5382,8 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
         dist = ((dist * 5) / 8) + round_up;
         uint16_t sparse_search_level_0_area_width = MIN((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_area_width  * search_area_multiplier * dist), context_ptr->md_sq_motion_search_ctrls.max_sparse_search_level_0_area_width);
         uint16_t sparse_search_level_0_area_height = MIN((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_area_height * search_area_multiplier * dist), context_ptr->md_sq_motion_search_ctrls.max_sparse_search_level_0_area_height);
-        uint32_t pre_check_distortion = best_search_distortion;
+
+
         md_full_pel_search(pcs_ptr,
             context_ptr,
             input_picture_ptr,
@@ -5405,16 +5405,12 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
             &best_search_mvy,
             &best_search_distortion);
 
-        uint32_t post_check_distortion = best_search_distortion;
 
-        //if (post_check_distortion < pre_check_distortion) 
-        {     
+        *me_mv_x = best_search_mvx;
+        *me_mv_y = best_search_mvy;
 
-            *me_mv_x = best_search_mvx;
-            *me_mv_y = best_search_mvy;
-
-            uint16_t sparse_search_level_1_area_width = MIN((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_area_width  * search_area_multiplier * dist), context_ptr->md_sq_motion_search_ctrls.max_sparse_search_level_1_area_width);
-            uint16_t sparse_search_level_1_area_height = MIN((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_area_height * search_area_multiplier * dist), context_ptr->md_sq_motion_search_ctrls.max_sparse_search_level_1_area_height);
+        uint16_t sparse_search_level_1_area_width = MIN((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_area_width  * search_area_multiplier * dist), context_ptr->md_sq_motion_search_ctrls.max_sparse_search_level_1_area_width);
+        uint16_t sparse_search_level_1_area_height = MIN((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_area_height * search_area_multiplier * dist), context_ptr->md_sq_motion_search_ctrls.max_sparse_search_level_1_area_height);
 
 
         md_full_pel_search(pcs_ptr,
@@ -5426,8 +5422,8 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
             ref_idx,
             *me_mv_x,
             *me_mv_y,
-            -((sparse_search_level_1_area_width  / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) >> 1,
-            +((sparse_search_level_1_area_width  / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) >> 1,
+            -((sparse_search_level_1_area_width / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) >> 1,
+            +((sparse_search_level_1_area_width / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) >> 1,
             -((sparse_search_level_1_area_height / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) >> 1,
             +((sparse_search_level_1_area_height / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) >> 1,
             context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step,
@@ -5451,8 +5447,8 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
             ref_idx,
             *me_mv_x,
             *me_mv_y,
-            -((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_area_width  / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) >> 1,
-            +((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_area_width  / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) >> 1,
+            -((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_area_width / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) >> 1,
+            +((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_area_width / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) >> 1,
             -((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_area_height / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) >> 1,
             +((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_area_height / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) >> 1,
             context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step,
@@ -5464,9 +5460,8 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
         *me_mv_x = best_search_mvx;
         *me_mv_y = best_search_mvy;
 
-        }    
-       }
     }
+}
 #endif
 
 #if PERFORM_SUB_PEL_MD
@@ -5834,8 +5829,6 @@ void read_refine_me_mvs(PictureControlSet *pcs_ptr, ModeDecisionContext *context
                         context_ptr,
                         input_picture_ptr,
                         input_origin_index,
-                        blk_origin_index,
-                        rf[0],
                         list_idx,
                         ref_idx,
                         &me_mv_x,
