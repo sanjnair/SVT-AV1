@@ -1926,7 +1926,7 @@ void md_sq_motion_search_controls(ModeDecisionContext *mdctxt, uint8_t md_sq_mv_
         md_sq_motion_search_ctrls->sparse_search_level_2_step             =   1; 
         md_sq_motion_search_ctrls->sparse_search_level_2_area_width       =   3;
         md_sq_motion_search_ctrls->sparse_search_level_2_area_height      =   3;
-#elif
+#else
         md_sq_motion_search_ctrls->sparse_search_level_0_enabled          =   1;
         md_sq_motion_search_ctrls->sparse_search_level_0_step             =   4;
         md_sq_motion_search_ctrls->sparse_search_level_0_area_width       =  75;
