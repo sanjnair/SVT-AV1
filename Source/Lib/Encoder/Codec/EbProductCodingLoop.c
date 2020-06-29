@@ -5296,147 +5296,53 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
 
     if (context_ptr->blk_geom->sq_size <= 64)
     {
-#if 1 // pa_me vs. mvp
-
         uint32_t fast_lambda = context_ptr->hbd_mode_decision ?
             context_ptr->fast_lambda_md[EB_10_BIT_MD] :
             context_ptr->fast_lambda_md[EB_8_BIT_MD];
 
-        //uint64_t th = RDCOST(fast_lambda, 16, context_ptr->blk_geom->bwidth * context_ptr->blk_geom->bheight);
-
-        //uint64_t th = RDCOST(fast_lambda, 16, context_ptr->blk_geom->bwidth * context_ptr->blk_geom->bheight);
         if (RDCOST(fast_lambda, 16, best_search_distortion) > RDCOST(fast_lambda, 16, 5 * context_ptr->blk_geom->bwidth * context_ptr->blk_geom->bheight))
-            //if (best_search_distortion > ((uint32_t) (((fast_lambda * 5)/ 1000) * context_ptr->blk_geom->bwidth * context_ptr->blk_geom->bheight)))
-            //if (best_search_distortion < context_ptr->best_mvp_distortion[list_idx][ref_idx])
-            {
-
-                //if (best_search_distortion > ((uint32_t)(8 * context_ptr->blk_geom->bwidth * context_ptr->blk_geom->bheight))) 
-                //{
-
-#else
-        if (best_search_distortion > ((uint32_t)(8 * context_ptr->blk_geom->bwidth * context_ptr->blk_geom->bheight)))
         {
+            if (best_search_distortion < context_ptr->dc_distortion)
+            {
+                EbReferenceObject *ref_obj = (EbReferenceObject *)pcs_ptr->ref_pic_ptr_array[list_idx][ref_idx]->object_ptr;
 
-            // Check if potential merge 
-            if (context_ptr->best_mvp_distortion[list_idx][ref_idx] >= best_search_distortion ||
-                ((((best_search_distortion - context_ptr->best_mvp_distortion[list_idx][ref_idx]) * 100) / best_search_distortion) < 5))
-#endif              
-                if (best_search_distortion < context_ptr->dc_distortion)
-                {
+                if (!(ref_obj == NULL || ref_obj->frame_type == KEY_FRAME || ref_obj->frame_type == INTRA_ONLY_FRAME)) {
 
+                    Av1Common *cm = pcs_ptr->parent_pcs_ptr->av1_cm;
+                    const int frame_mvs_stride = ROUND_POWER_OF_TWO(cm->mi_cols, 1);
 
-#if USE_TMVP
-                    EbReferenceObject *ref_obj = (EbReferenceObject *)pcs_ptr->ref_pic_ptr_array[list_idx][ref_idx]->object_ptr;
+                    int32_t  mi_row = context_ptr->blk_origin_y >> MI_SIZE_LOG2;
+                    int32_t  mi_col = context_ptr->blk_origin_x >> MI_SIZE_LOG2;
+                    MV_REF *frame_mvs = ref_obj->mvs + (mi_row >> 1) * frame_mvs_stride + (mi_col >> 1);
 
+                    // Colocated area to parse= f(8x8)
+                    int size_colocated_area = 4;
+                    int start_colocated_area_x = -(size_colocated_area >> 1);
+                    int end_colocated_area_x = +(size_colocated_area >> 1);
+                    int start_colocated_area_y = -(size_colocated_area >> 1);
+                    int end_colocated_area_y = +(size_colocated_area >> 1);
 
-                    if (!(ref_obj == NULL || ref_obj->frame_type == KEY_FRAME || ref_obj->frame_type == INTRA_ONLY_FRAME)) {
-
-
-
-                        Av1Common *cm = pcs_ptr->parent_pcs_ptr->av1_cm;
-                        const int frame_mvs_stride = ROUND_POWER_OF_TWO(cm->mi_cols, 1);
-
-                        int32_t  mi_row = context_ptr->blk_origin_y >> MI_SIZE_LOG2;
-                        int32_t  mi_col = context_ptr->blk_origin_x >> MI_SIZE_LOG2;
-                        MV_REF *frame_mvs = ref_obj->mvs + (mi_row >> 1) * frame_mvs_stride + (mi_col >> 1);
-
-                        // Colocated area to parse= f(8x8)
-                        int size_colocated_area = 2;
-                        int start_colocated_area_x = -(size_colocated_area >> 1);
-                        int end_colocated_area_x   = +(size_colocated_area >> 1);
-                        int start_colocated_area_y = -(size_colocated_area >> 1);
-                        int end_colocated_area_y   = +(size_colocated_area >> 1);
-
-                        start_colocated_area_x = (start_colocated_area_x < -(mi_col >> 1)) ? -(mi_col >> 1) : start_colocated_area_x;
-                        start_colocated_area_y = (start_colocated_area_y < -(mi_row >> 1)) ? -(mi_row >> 1) : start_colocated_area_y;
-                        end_colocated_area_x = (end_colocated_area_x > ((cm->mi_cols >> 1) - (mi_col >> 1))) ? ((cm->mi_cols >> 1) - (mi_col >> 1)) : end_colocated_area_x;
-                        end_colocated_area_y = (end_colocated_area_y > ((cm->mi_rows >> 1) - (mi_row >> 1))) ? ((cm->mi_rows >> 1) - (mi_row >> 1)) : end_colocated_area_y;
-                        for (int h = start_colocated_area_y; h < end_colocated_area_y; h++) {
-                            for (int w = start_colocated_area_x; w < end_colocated_area_x; w++) {
-                                MV_REF *mv = frame_mvs + w + (h * frame_mvs_stride);
-                                if (mv->ref_frame > INTRA_FRAME) {
-
-                                    if (ABS(mv->mv.as_mv.row) > 8192 || ABS(mv->mv.as_mv.col) > 8192) {
-                                        search_area_multiplier = MAX(6, search_area_multiplier);
-                                    }
-                                    else if (ABS(mv->mv.as_mv.row) > 2048 || ABS(mv->mv.as_mv.col) > 2048) {
-                                        search_area_multiplier = MAX(5, search_area_multiplier);
-                                    }
-                                    else if (ABS(mv->mv.as_mv.row) > 512 || ABS(mv->mv.as_mv.col) > 512) {
-                                        search_area_multiplier = MAX(4, search_area_multiplier);
-                                    }
-                                    //else if (ABS(mv->mv.as_mv.row) > 256 || ABS(mv->mv.as_mv.col) > 256) {
-                                    //    search_area_multiplier = MAX(3, search_area_multiplier);
-                                    //}
-                                    //else if (ABS(mv->mv.as_mv.row) > 128 || ABS(mv->mv.as_mv.col) > 128) {
-                                    //    search_area_multiplier = MAX(2, search_area_multiplier);
-                                    //}
-                                    //else if (ABS(mv->mv.as_mv.row) > 64 || ABS(mv->mv.as_mv.col) > 64) {
-                                    //    search_area_multiplier = MAX(1, search_area_multiplier);
-                                    //}
-
-
-
+                    start_colocated_area_x = (start_colocated_area_x < -(mi_col >> 1)) ? -(mi_col >> 1) : start_colocated_area_x;
+                    start_colocated_area_y = (start_colocated_area_y < -(mi_row >> 1)) ? -(mi_row >> 1) : start_colocated_area_y;
+                    end_colocated_area_x = (end_colocated_area_x > ((cm->mi_cols >> 1) - (mi_col >> 1))) ? ((cm->mi_cols >> 1) - (mi_col >> 1)) : end_colocated_area_x;
+                    end_colocated_area_y = (end_colocated_area_y > ((cm->mi_rows >> 1) - (mi_row >> 1))) ? ((cm->mi_rows >> 1) - (mi_row >> 1)) : end_colocated_area_y;
+                    for (int h = start_colocated_area_y; h < end_colocated_area_y; h++) {
+                        for (int w = start_colocated_area_x; w < end_colocated_area_x; w++) {
+                            MV_REF *mv = frame_mvs + w + (h * frame_mvs_stride);
+                            if (mv->ref_frame > INTRA_FRAME) {
+                                if (ABS(mv->mv.as_mv.row) > 512 || ABS(mv->mv.as_mv.col) > 512) {
+                                    search_area_multiplier = MAX(1, search_area_multiplier);
                                 }
                             }
                         }
-                        //search_area_multiplier = MAX(6, search_area_multiplier);
-                    }
-                    else {
-                        for (int8_t mvp_index = 0; mvp_index < context_ptr->mvp_count[list_idx][ref_idx]; mvp_index++) {
-
-
-                            if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 8192 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 8192 || *me_mv_x > 8192 || *me_mv_y > 8192) {
-                                search_area_multiplier = MAX(6, search_area_multiplier);
-                            }
-                            else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 2048 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 2048 || *me_mv_x > 2048 || *me_mv_y > 2048) {
-                                search_area_multiplier = MAX(5, search_area_multiplier);
-                            }
-                            else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 512 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 512 || *me_mv_x > 512 || *me_mv_y > 512) {
-                                search_area_multiplier = MAX(4, search_area_multiplier);
-                            }
-                            else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 256 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 256 || *me_mv_x > 256 || *me_mv_y > 256) {
-                                search_area_multiplier = MAX(3, search_area_multiplier);
-                            }
-                            else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 128 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 128 || *me_mv_x > 128 || *me_mv_y > 128) {
-                                search_area_multiplier = MAX(2, search_area_multiplier);
-                            }
-                            else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 64 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 64 || *me_mv_x > 64 || *me_mv_y > 64) {
-                                search_area_multiplier = MAX(1, search_area_multiplier);
-                            }
-                        }
-                    }
-#else
-                    // fixed comb 0
-                    for (int8_t mvp_index = 0; mvp_index < context_ptr->mvp_count[list_idx][ref_idx]; mvp_index++) {
-
-
-                        if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 8192 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 8192 || *me_mv_x > 8192 || *me_mv_y > 8192) {
-                            search_area_multiplier = MAX(6, search_area_multiplier);
-                        }
-                        else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 2048 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 2048 || *me_mv_x > 2048 || *me_mv_y > 2048) {
-                            search_area_multiplier = MAX(5, search_area_multiplier);
-                        }
-                        else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 512 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 512 || *me_mv_x > 512 || *me_mv_y > 512) {
-                            search_area_multiplier = MAX(4, search_area_multiplier);
-                        }
-                        else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 256 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 256 || *me_mv_x > 256 || *me_mv_y > 256) {
-                            search_area_multiplier = MAX(3, search_area_multiplier);
-                        }
-                        else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 128 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 128 || *me_mv_x > 128 || *me_mv_y > 128) {
-                            search_area_multiplier = MAX(2, search_area_multiplier);
-                        }
-                        else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 64 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 64 || *me_mv_x > 64 || *me_mv_y > 64) {
-                            search_area_multiplier = MAX(1, search_area_multiplier);
-                        }
-                        
-                        //search_area_multiplier = 6;
-
-                    }
-#endif
-                        }
                     }
                 }
+                else {
+                    search_area_multiplier = MAX(1, search_area_multiplier);
+                }
+            }
+        }
+    }
 #if QUICK_CHECK
     search_area_multiplier = 6;
     {

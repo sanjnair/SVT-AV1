@@ -1902,8 +1902,8 @@ void md_sq_motion_search_controls(ModeDecisionContext *mdctxt, uint8_t md_sq_mv_
 #else
         md_sq_motion_search_ctrls->sparse_search_step = 2;
 #endif
-        md_sq_motion_search_ctrls->sparse_search_area_width = 75;
-        md_sq_motion_search_ctrls->sparse_search_area_height = 75;
+        md_sq_motion_search_ctrls->sparse_search_area_width = 150;
+        md_sq_motion_search_ctrls->sparse_search_area_height = 150;
 
         md_sq_motion_search_ctrls->max_sparse_search_area_width = 750;
         md_sq_motion_search_ctrls->max_sparse_search_area_height = 750;
