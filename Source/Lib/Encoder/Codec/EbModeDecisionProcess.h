@@ -315,14 +315,21 @@ typedef struct MdSqMotionSearchCtrls {
     uint8_t enabled;                        // 0: SQ motion search @ MD OFF; 1: SQ motion search @ MD ON
     uint8_t use_ssd;                        // 0: search using SAD; 1: search using SSD 
 
-    uint8_t  sparse_search_step;            // Sparse search step
-    uint16_t sparse_search_area_width;      // Sparse search area width
-    uint16_t sparse_search_area_height;     // Sparse search area height
-    uint16_t max_sparse_search_area_width;  // Max Sparse search area width
-    uint16_t max_sparse_search_area_height; // Max Sparse search area height
+    uint8_t  sparse_search_level_0_step;             // Sparse search step
+    uint16_t sparse_search_level_0_area_width;       // Sparse search area width
+    uint16_t sparse_search_level_0_area_height;      // Sparse search area height
+    uint16_t max_sparse_search_level_0_area_width;   // Max Sparse search area width
+    uint16_t max_sparse_search_level_0_area_height;  // Max Sparse search area height
 
-    uint16_t search_area_width;             // Full Pel search area width
-    uint16_t search_area_height;            // Full Pel search area height
+    uint8_t  sparse_search_level_1_step;             // Sparse search step
+    uint16_t sparse_search_level_1_area_width;       // Sparse search area width
+    uint16_t sparse_search_level_1_area_height;      // Sparse search area height
+    uint16_t max_sparse_search_level_1_area_width;   // Max Sparse search area width
+    uint16_t max_sparse_search_level_1_area_height;  // Max Sparse search area height
+
+    uint8_t  sparse_search_level_2_step;            // Sparse search step
+    uint16_t sparse_search_level_2_area_width;      // Sparse search area width
+    uint16_t sparse_search_level_2_area_height;     // Sparse search area height
 }MdSqMotionSearchCtrls;
 #endif
 
