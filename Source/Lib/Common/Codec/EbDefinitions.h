@@ -606,6 +606,11 @@ extern "C" {
 
 #define USE_TMVP                   1
 #define QUICK_CHECK                1
+
+
+#define TEST_LEVEL_1               1
+#define TEST_LEVEL_2               0
+
 #endif
 // END  SVT_01 /////////////////////////////////////////////////////////
 
