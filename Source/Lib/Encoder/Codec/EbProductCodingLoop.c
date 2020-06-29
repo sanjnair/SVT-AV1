@@ -5284,8 +5284,9 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
     // Two checks are performed towards identifying potential high active block and PA_ME failure
     // 1st check: the PA_ME MV distortion is high but not higher than dc distortion
     // 2nd check (exploit both temporal and spatial information): active collocated block (Temporal-MVP) or active surrounding block(s) (Spatial-MVP)
-
+#if !TOWARDS_FINAL_2
     if (context_ptr->blk_geom->sq_size <= 64)
+#endif
     {
 
         uint32_t fast_lambda = context_ptr->hbd_mode_decision ?
