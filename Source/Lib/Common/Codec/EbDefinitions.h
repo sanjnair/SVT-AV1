@@ -608,8 +608,8 @@ extern "C" {
 #define QUICK_CHECK                1
 
 
-#define TEST_LEVEL_1               1
-#define TEST_LEVEL_2               0
+#define TEST_LEVEL_1               0
+#define TEST_LEVEL_2               1
 
 #endif
 // END  SVT_01 /////////////////////////////////////////////////////////
