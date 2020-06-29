@@ -5380,86 +5380,94 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
     if (search_area_multiplier) {
         int8_t round_up = ((dist % 8) == 0) ? 0 : 1; // factor to slowdown the ME search region growth to MAX
         dist = ((dist * 5) / 8) + round_up;
-        uint16_t sparse_search_level_0_area_width = MIN((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_area_width  * search_area_multiplier * dist), context_ptr->md_sq_motion_search_ctrls.max_sparse_search_level_0_area_width);
-        uint16_t sparse_search_level_0_area_height = MIN((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_area_height * search_area_multiplier * dist), context_ptr->md_sq_motion_search_ctrls.max_sparse_search_level_0_area_height);
+
+        // Sparse-search Level_0
+        if (context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_enabled) {
+            uint16_t sparse_search_level_0_area_width = MIN((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_area_width  * search_area_multiplier * dist), context_ptr->md_sq_motion_search_ctrls.max_sparse_search_level_0_area_width);
+            uint16_t sparse_search_level_0_area_height = MIN((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_area_height * search_area_multiplier * dist), context_ptr->md_sq_motion_search_ctrls.max_sparse_search_level_0_area_height);
 
 
-        md_full_pel_search(pcs_ptr,
-            context_ptr,
-            input_picture_ptr,
-            input_origin_index,
-            context_ptr->md_sq_motion_search_ctrls.use_ssd,
-            list_idx,
-            ref_idx,
-            *me_mv_x,
-            *me_mv_y,
-            -((sparse_search_level_0_area_width  / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) >> 1,
-            +((sparse_search_level_0_area_width  / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) >> 1,
-            -((sparse_search_level_0_area_height / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) >> 1,
-            +((sparse_search_level_0_area_height / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) >> 1,
-            context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step,
+            md_full_pel_search(pcs_ptr,
+                context_ptr,
+                input_picture_ptr,
+                input_origin_index,
+                context_ptr->md_sq_motion_search_ctrls.use_ssd,
+                list_idx,
+                ref_idx,
+                *me_mv_x,
+                *me_mv_y,
+                -((sparse_search_level_0_area_width / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) >> 1,
+                +((sparse_search_level_0_area_width / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) >> 1,
+                -((sparse_search_level_0_area_height / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) >> 1,
+                +((sparse_search_level_0_area_height / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) >> 1,
+                context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step,
 #if SEARCH_TOP_N
-            0,
+                0,
 #endif
-            &best_search_mvx,
-            &best_search_mvy,
-            &best_search_distortion);
+                &best_search_mvx,
+                &best_search_mvy,
+                &best_search_distortion);
 
 
-        *me_mv_x = best_search_mvx;
-        *me_mv_y = best_search_mvy;
+            *me_mv_x = best_search_mvx;
+            *me_mv_y = best_search_mvy;
+        }
 
-        uint16_t sparse_search_level_1_area_width = MIN((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_area_width  * search_area_multiplier * dist), context_ptr->md_sq_motion_search_ctrls.max_sparse_search_level_1_area_width);
-        uint16_t sparse_search_level_1_area_height = MIN((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_area_height * search_area_multiplier * dist), context_ptr->md_sq_motion_search_ctrls.max_sparse_search_level_1_area_height);
+        // Sparse-search Level_1
+        if (context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_enabled) {
+            uint16_t sparse_search_level_1_area_width = MIN((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_area_width  * search_area_multiplier * dist), context_ptr->md_sq_motion_search_ctrls.max_sparse_search_level_1_area_width);
+            uint16_t sparse_search_level_1_area_height = MIN((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_area_height * search_area_multiplier * dist), context_ptr->md_sq_motion_search_ctrls.max_sparse_search_level_1_area_height);
 
 
-        md_full_pel_search(pcs_ptr,
-            context_ptr,
-            input_picture_ptr,
-            input_origin_index,
-            context_ptr->md_sq_motion_search_ctrls.use_ssd,
-            list_idx,
-            ref_idx,
-            *me_mv_x,
-            *me_mv_y,
-            -((sparse_search_level_1_area_width / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) >> 1,
-            +((sparse_search_level_1_area_width / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) >> 1,
-            -((sparse_search_level_1_area_height / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) >> 1,
-            +((sparse_search_level_1_area_height / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) >> 1,
-            context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step,
+            md_full_pel_search(pcs_ptr,
+                context_ptr,
+                input_picture_ptr,
+                input_origin_index,
+                context_ptr->md_sq_motion_search_ctrls.use_ssd,
+                list_idx,
+                ref_idx,
+                *me_mv_x,
+                *me_mv_y,
+                -((sparse_search_level_1_area_width / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) >> 1,
+                +((sparse_search_level_1_area_width / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) >> 1,
+                -((sparse_search_level_1_area_height / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) >> 1,
+                +((sparse_search_level_1_area_height / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) >> 1,
+                context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step,
 #if SEARCH_TOP_N
-            0,
+                0,
 #endif
-            &best_search_mvx,
-            &best_search_mvy,
-            &best_search_distortion);
+                &best_search_mvx,
+                &best_search_mvy,
+                &best_search_distortion);
 
-        *me_mv_x = best_search_mvx;
-        *me_mv_y = best_search_mvy;
+            *me_mv_x = best_search_mvx;
+            *me_mv_y = best_search_mvy;
+        }
 
-        // Perform 3x3 refinement around the best sparse search MV
-        md_full_pel_search(pcs_ptr,
-            context_ptr,
-            input_picture_ptr,
-            input_origin_index,
-            context_ptr->md_sq_motion_search_ctrls.use_ssd,
-            list_idx,
-            ref_idx,
-            *me_mv_x,
-            *me_mv_y,
-            -((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_area_width / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) >> 1,
-            +((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_area_width / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) >> 1,
-            -((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_area_height / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) >> 1,
-            +((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_area_height / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) >> 1,
-            context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step,
-            0,
-            &best_search_mvx,
-            &best_search_mvy,
-            &best_search_distortion);
+        // Sparse-search Level_2
+        if (context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_enabled) {
+            md_full_pel_search(pcs_ptr,
+                context_ptr,
+                input_picture_ptr,
+                input_origin_index,
+                context_ptr->md_sq_motion_search_ctrls.use_ssd,
+                list_idx,
+                ref_idx,
+                *me_mv_x,
+                *me_mv_y,
+                -((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_area_width / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) >> 1,
+                +((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_area_width / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) >> 1,
+                -((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_area_height / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) >> 1,
+                +((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_area_height / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step) >> 1,
+                context_ptr->md_sq_motion_search_ctrls.sparse_search_level_2_step,
+                0,
+                &best_search_mvx,
+                &best_search_mvy,
+                &best_search_distortion);
 
-        *me_mv_x = best_search_mvx;
-        *me_mv_y = best_search_mvy;
-
+            *me_mv_x = best_search_mvx;
+            *me_mv_y = best_search_mvy;
+        }
     }
 }
 #endif
