@@ -5325,25 +5325,18 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
                     int32_t  mi_col = context_ptr->blk_origin_x >> MI_SIZE_LOG2;
                     MV_REF *frame_mvs = ref_obj->mvs + (mi_row >> 1) * frame_mvs_stride + (mi_col >> 1);
 
-                    // Colocated area to parse= f(8x8)
-                    int size_colocated_area = (pcs_ptr->parent_pcs_ptr->input_resolution < INPUT_SIZE_1080p_RANGE) ? 2 : 8;
-#if TOWARDS_FINAL_5
-                    size_colocated_area = 2;
-#endif
-#if TOWARDS_FINAL_6
-                    size_colocated_area = 16;
-#endif
-                    int start_colocated_area_x = -(size_colocated_area >> 1);
-                    int end_colocated_area_x = +(size_colocated_area >> 1);
-                    int start_colocated_area_y = -(size_colocated_area >> 1);
-                    int end_colocated_area_y = +(size_colocated_area >> 1);
+                    int16_t size_colocated_area = context_ptr->md_sq_motion_search_ctrls.size_colocated_area;
+                    int16_t start_colocated_area_x = -(size_colocated_area >> 1);
+                    int16_t end_colocated_area_x = +(size_colocated_area >> 1);
+                    int16_t start_colocated_area_y = -(size_colocated_area >> 1);
+                    int16_t end_colocated_area_y = +(size_colocated_area >> 1);
 
                     start_colocated_area_x = (start_colocated_area_x < -(mi_col >> 1)) ? -(mi_col >> 1) : start_colocated_area_x;
                     start_colocated_area_y = (start_colocated_area_y < -(mi_row >> 1)) ? -(mi_row >> 1) : start_colocated_area_y;
                     end_colocated_area_x = (end_colocated_area_x > ((cm->mi_cols >> 1) - (mi_col >> 1))) ? ((cm->mi_cols >> 1) - (mi_col >> 1)) : end_colocated_area_x;
                     end_colocated_area_y = (end_colocated_area_y > ((cm->mi_rows >> 1) - (mi_row >> 1))) ? ((cm->mi_rows >> 1) - (mi_row >> 1)) : end_colocated_area_y;
-                    for (int h = start_colocated_area_y; h < end_colocated_area_y; h++) {
-                        for (int w = start_colocated_area_x; w < end_colocated_area_x; w++) {
+                    for (int16_t h = start_colocated_area_y; h < end_colocated_area_y; h++) {
+                        for (int16_t w = start_colocated_area_x; w < end_colocated_area_x; w++) {
                             MV_REF *mv = frame_mvs + w + (h * frame_mvs_stride);
                             if (mv->ref_frame > INTRA_FRAME) {
 

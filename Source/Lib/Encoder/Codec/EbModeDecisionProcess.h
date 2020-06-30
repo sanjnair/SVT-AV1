@@ -315,6 +315,8 @@ typedef struct MdSqMotionSearchCtrls {
     uint8_t enabled;                        // 0: SQ motion search @ MD OFF; 1: SQ motion search @ MD ON
     uint8_t use_ssd;                        // 0: search using SAD; 1: search using SSD 
 
+    int16_t size_colocated_area;                     // size_colocated_area = f(8x8)
+
     uint8_t  sparse_search_level_0_enabled;          // 0: OFF; 1: ON
     uint8_t  sparse_search_level_0_step;             // Sparse search step
     uint16_t sparse_search_level_0_area_width;       // Sparse search area width
