@@ -603,7 +603,7 @@ extern "C" {
 #define TOWARDS_FINAL_2            0
 #define TOWARDS_FINAL_3            0
 
-#define TOWARDS_FINAL_4            1 // Action for all
+#define TOWARDS_FINAL_4            0 // Action for all
 
 #define TOWARDS_FINAL_5            0 // size_colocated_area=2
 
