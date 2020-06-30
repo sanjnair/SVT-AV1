@@ -607,7 +607,7 @@ extern "C" {
 
 #define TOWARDS_FINAL_5            0 // size_colocated_area=2
 
-#define TOWARDS_FINAL_6            1 // size_colocated_area=16
+#define TOWARDS_FINAL_6            0 // size_colocated_area=16
 #endif
 // END  SVT_01 /////////////////////////////////////////////////////////
 
