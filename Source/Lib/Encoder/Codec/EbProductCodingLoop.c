@@ -5295,91 +5295,81 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
 #if !TOWARDS_FINAL_3
         if (RDCOST(fast_lambda, 16, best_search_distortion) > RDCOST(fast_lambda, 16, 5 * context_ptr->blk_geom->bwidth * context_ptr->blk_geom->bheight))
 #endif
+        {
             {
-                {
-                    EbReferenceObject *ref_obj = (EbReferenceObject *)pcs_ptr->ref_pic_ptr_array[list_idx][ref_idx]->object_ptr;
+                EbReferenceObject *ref_obj = (EbReferenceObject *)pcs_ptr->ref_pic_ptr_array[list_idx][ref_idx]->object_ptr;
 
-                    if (!(ref_obj == NULL || ref_obj->frame_type == KEY_FRAME || ref_obj->frame_type == INTRA_ONLY_FRAME)) {
+                if (!(ref_obj == NULL || ref_obj->frame_type == KEY_FRAME || ref_obj->frame_type == INTRA_ONLY_FRAME)) {
 
-                        Av1Common *cm = pcs_ptr->parent_pcs_ptr->av1_cm;
-                        const int frame_mvs_stride = ROUND_POWER_OF_TWO(cm->mi_cols, 1);
+                    Av1Common *cm = pcs_ptr->parent_pcs_ptr->av1_cm;
+                    const int frame_mvs_stride = ROUND_POWER_OF_TWO(cm->mi_cols, 1);
 
-                        int32_t  mi_row = context_ptr->blk_origin_y >> MI_SIZE_LOG2;
-                        int32_t  mi_col = context_ptr->blk_origin_x >> MI_SIZE_LOG2;
-                        MV_REF *frame_mvs = ref_obj->mvs + (mi_row >> 1) * frame_mvs_stride + (mi_col >> 1);
+                    int32_t  mi_row = context_ptr->blk_origin_y >> MI_SIZE_LOG2;
+                    int32_t  mi_col = context_ptr->blk_origin_x >> MI_SIZE_LOG2;
+                    MV_REF *frame_mvs = ref_obj->mvs + (mi_row >> 1) * frame_mvs_stride + (mi_col >> 1);
 
-                        // Colocated area to parse= f(8x8)
-                        int size_colocated_area = (pcs_ptr->parent_pcs_ptr->input_resolution < INPUT_SIZE_1080p_RANGE) ? 2 : 8;
+                    // Colocated area to parse= f(8x8)
+                    int size_colocated_area = (pcs_ptr->parent_pcs_ptr->input_resolution < INPUT_SIZE_1080p_RANGE) ? 2 : 8;
 #if TOWARDS_FINAL_5
-                        size_colocated_area = 2;
+                    size_colocated_area = 2;
 #endif
 #if TOWARDS_FINAL_6
-                        size_colocated_area = 16;
+                    size_colocated_area = 16;
 #endif
-                        int start_colocated_area_x = -(size_colocated_area >> 1);
-                        int end_colocated_area_x   = +(size_colocated_area >> 1);
-                        int start_colocated_area_y = -(size_colocated_area >> 1);
-                        int end_colocated_area_y   = +(size_colocated_area >> 1);
+                    int start_colocated_area_x = -(size_colocated_area >> 1);
+                    int end_colocated_area_x = +(size_colocated_area >> 1);
+                    int start_colocated_area_y = -(size_colocated_area >> 1);
+                    int end_colocated_area_y = +(size_colocated_area >> 1);
 
-                        start_colocated_area_x = (start_colocated_area_x < -(mi_col >> 1)) ? -(mi_col >> 1) : start_colocated_area_x;
-                        start_colocated_area_y = (start_colocated_area_y < -(mi_row >> 1)) ? -(mi_row >> 1) : start_colocated_area_y;
-                        end_colocated_area_x = (end_colocated_area_x > ((cm->mi_cols >> 1) - (mi_col >> 1))) ? ((cm->mi_cols >> 1) - (mi_col >> 1)) : end_colocated_area_x;
-                        end_colocated_area_y = (end_colocated_area_y > ((cm->mi_rows >> 1) - (mi_row >> 1))) ? ((cm->mi_rows >> 1) - (mi_row >> 1)) : end_colocated_area_y;
-                        for (int h = start_colocated_area_y; h < end_colocated_area_y; h++) {
-                            for (int w = start_colocated_area_x; w < end_colocated_area_x; w++) {
-                                MV_REF *mv = frame_mvs + w + (h * frame_mvs_stride);
-                                if (mv->ref_frame > INTRA_FRAME) {
+                    start_colocated_area_x = (start_colocated_area_x < -(mi_col >> 1)) ? -(mi_col >> 1) : start_colocated_area_x;
+                    start_colocated_area_y = (start_colocated_area_y < -(mi_row >> 1)) ? -(mi_row >> 1) : start_colocated_area_y;
+                    end_colocated_area_x = (end_colocated_area_x > ((cm->mi_cols >> 1) - (mi_col >> 1))) ? ((cm->mi_cols >> 1) - (mi_col >> 1)) : end_colocated_area_x;
+                    end_colocated_area_y = (end_colocated_area_y > ((cm->mi_rows >> 1) - (mi_row >> 1))) ? ((cm->mi_rows >> 1) - (mi_row >> 1)) : end_colocated_area_y;
+                    for (int h = start_colocated_area_y; h < end_colocated_area_y; h++) {
+                        for (int w = start_colocated_area_x; w < end_colocated_area_x; w++) {
+                            MV_REF *mv = frame_mvs + w + (h * frame_mvs_stride);
+                            if (mv->ref_frame > INTRA_FRAME) {
 
-                                    if (ABS(mv->mv.as_mv.row) > 8192 || ABS(mv->mv.as_mv.col) > 8192) {
-                                        search_area_multiplier = MAX(6, search_area_multiplier);
-                                    }
-                                    else if (ABS(mv->mv.as_mv.row) > 2048 || ABS(mv->mv.as_mv.col) > 2048) {
-                                        search_area_multiplier = MAX(5, search_area_multiplier);
-                                    }
-                                    else if (ABS(mv->mv.as_mv.row) > 512 || ABS(mv->mv.as_mv.col) > 512) {
-                                        search_area_multiplier = MAX(4, search_area_multiplier);
-                                    }
-                                    else if (ABS(mv->mv.as_mv.row) > 256 || ABS(mv->mv.as_mv.col) > 256) {
-                                        search_area_multiplier = MAX(3, search_area_multiplier);
-                                    }
-                                    else if (ABS(mv->mv.as_mv.row) > 128 || ABS(mv->mv.as_mv.col) > 128) {
-                                        search_area_multiplier = MAX(2, search_area_multiplier);
-                                    }
-                                    else if (ABS(mv->mv.as_mv.row) > 64 || ABS(mv->mv.as_mv.col) > 64) {
-                                        search_area_multiplier = MAX(1, search_area_multiplier);
-                                    }
+                                if (ABS(mv->mv.as_mv.row) > 8192 || ABS(mv->mv.as_mv.col) > 8192) {
+                                    search_area_multiplier = MAX(6, search_area_multiplier);
+                                }
+                                else if (ABS(mv->mv.as_mv.row) > 2048 || ABS(mv->mv.as_mv.col) > 2048) {
+                                    search_area_multiplier = MAX(5, search_area_multiplier);
+                                }
+                                else if (ABS(mv->mv.as_mv.row) > 512 || ABS(mv->mv.as_mv.col) > 512) {
+                                    search_area_multiplier = MAX(4, search_area_multiplier);
                                 }
                             }
                         }
-                        //search_area_multiplier = MAX(6, search_area_multiplier);
-                    }
-                    else {
-                        for (int8_t mvp_index = 0; mvp_index < context_ptr->mvp_count[list_idx][ref_idx]; mvp_index++) {
-
-
-                            if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 8192 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 8192 || *me_mv_x > 8192 || *me_mv_y > 8192) {
-                                search_area_multiplier = MAX(6, search_area_multiplier);
-                            }
-                            else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 2048 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 2048 || *me_mv_x > 2048 || *me_mv_y > 2048) {
-                                search_area_multiplier = MAX(5, search_area_multiplier);
-                            }
-                            else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 512 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 512 || *me_mv_x > 512 || *me_mv_y > 512) {
-                                search_area_multiplier = MAX(4, search_area_multiplier);
-                            }
-                            else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 256 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 256 || *me_mv_x > 256 || *me_mv_y > 256) {
-                                search_area_multiplier = MAX(3, search_area_multiplier);
-                            }
-                            else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 128 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 128 || *me_mv_x > 128 || *me_mv_y > 128) {
-                                search_area_multiplier = MAX(2, search_area_multiplier);
-                            }
-                            else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 64 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 64 || *me_mv_x > 64 || *me_mv_y > 64) {
-                                search_area_multiplier = MAX(1, search_area_multiplier);
-                            }
-                        }
-                    }
-                        }
                     }
                 }
+                else {
+                    for (int8_t mvp_index = 0; mvp_index < context_ptr->mvp_count[list_idx][ref_idx]; mvp_index++) {
+                        if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 8192 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 8192 || *me_mv_x > 8192 || *me_mv_y > 8192) {
+                            search_area_multiplier = MAX(6, search_area_multiplier);
+                        }
+                        else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 2048 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 2048 || *me_mv_x > 2048 || *me_mv_y > 2048) {
+                            search_area_multiplier = MAX(5, search_area_multiplier);
+                        }
+                        else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 512 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 512 || *me_mv_x > 512 || *me_mv_y > 512) {
+                            search_area_multiplier = MAX(4, search_area_multiplier);
+                        }
+#if 1
+                        else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 256 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 256 || *me_mv_x > 256 || *me_mv_y > 256) {
+                            search_area_multiplier = MAX(3, search_area_multiplier);
+                        }
+                        else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 128 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 128 || *me_mv_x > 128 || *me_mv_y > 128) {
+                            search_area_multiplier = MAX(2, search_area_multiplier);
+                        }
+                        else if (context_ptr->mvp_x_array[list_idx][ref_idx][mvp_index] > 64 || context_ptr->mvp_y_array[list_idx][ref_idx][mvp_index] > 64 || *me_mv_x > 64 || *me_mv_y > 64) {
+                            search_area_multiplier = MAX(1, search_area_multiplier);
+                        }
+#endif
+                    }
+                }
+            }
+        }
+    }
 #if TOWARDS_FINAL_4
     search_area_multiplier = 6;
 #endif
