@@ -603,6 +603,10 @@ extern "C" {
 #define TOWARDS_FINAL_2            0
 #define TOWARDS_FINAL_3            0
 #define TOWARDS_FINAL_4            0 // Action for all
+
+
+#define TOWARDS_FINAL_5            1 // size_colocated_area=2
+
 #endif
 // END  SVT_01 /////////////////////////////////////////////////////////
 

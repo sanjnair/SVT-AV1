@@ -5310,7 +5310,9 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
 
                         // Colocated area to parse= f(8x8)
                         int size_colocated_area = (pcs_ptr->parent_pcs_ptr->input_resolution < INPUT_SIZE_1080p_RANGE) ? 2 : 8;
-
+#if TOWARDS_FINAL_5
+                        size_colocated_area = 2;
+#endif
                         int start_colocated_area_x = -(size_colocated_area >> 1);
                         int end_colocated_area_x   = +(size_colocated_area >> 1);
                         int start_colocated_area_y = -(size_colocated_area >> 1);
