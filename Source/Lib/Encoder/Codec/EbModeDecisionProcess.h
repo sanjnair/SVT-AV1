@@ -895,6 +895,12 @@ typedef struct ModeDecisionContext {
     int16_t mvp_y_array[MAX_NUM_OF_REF_PIC_LIST][REF_LIST_MAX_DEPTH][PRED_ME_MAX_MVP_CANIDATES];
     int8_t  mvp_count[MAX_NUM_OF_REF_PIC_LIST][REF_LIST_MAX_DEPTH];
 #endif
+#if OPTIMIZE_SPARSE_SEARCH
+    int16_t sparse_search_level_0_start_x ;
+    int16_t sparse_search_level_0_end_x   ;
+    int16_t sparse_search_level_0_start_y ;
+    int16_t sparse_search_level_0_end_y   ;
+#endif
 } ModeDecisionContext;
 
 typedef void (*EbAv1LambdaAssignFunc)(uint32_t *fast_lambda, uint32_t *full_lambda,

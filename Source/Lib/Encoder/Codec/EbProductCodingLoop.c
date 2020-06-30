@@ -4584,6 +4584,23 @@ for (int32_t refinement_pos_x = search_position_start_x;
              ++refinement_pos_y) {
 #endif
 #endif
+
+
+
+#if OPTIMIZE_SPARSE_SEARCH
+            // If sparse search level_1
+            if (sparse_search_step == 2) {
+                // If search level_0 previously performed
+                if (context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_enabled && context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step == 4) {
+                    // If level_0 range
+                    if (refinement_pos_x >= context_ptr->sparse_search_level_0_start_x && refinement_pos_x <= context_ptr->sparse_search_level_0_end_x && refinement_pos_y >= context_ptr->sparse_search_level_0_start_y && refinement_pos_y <= context_ptr->sparse_search_level_0_end_y)
+                        // If level_0 position
+                        if (refinement_pos_x % 4 == 0 && refinement_pos_y % 4 == 0)
+                            continue;
+                }
+            }
+#endif
+
 #if INT_RECON_OFFSET_FIX
             // Never negative here
             int32_t ref_origin_index =
@@ -5384,6 +5401,19 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
             uint16_t sparse_search_level_0_area_height = MIN((context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_area_height * search_area_multiplier * dist), context_ptr->md_sq_motion_search_ctrls.max_sparse_search_level_0_area_height);
 
 
+            // Derive 
+            int16_t search_position_start_x  = -(((sparse_search_level_0_area_width   >> 1 ) / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step);
+            int16_t search_position_end_x    = +(((sparse_search_level_0_area_width   >> 1 ) / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step);
+            int16_t search_position_start_y  = -(((sparse_search_level_0_area_height  >> 1 ) / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step);
+            int16_t search_position_end_y    = +(((sparse_search_level_0_area_height  >> 1 ) / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step);
+
+#if OPTIMIZE_SPARSE_SEARCH
+            context_ptr->sparse_search_level_0_start_x = (*me_mv_x >> 3) + search_position_start_x;
+            context_ptr->sparse_search_level_0_end_x   = (*me_mv_x >> 3) + search_position_end_x;
+            context_ptr->sparse_search_level_0_start_y = (*me_mv_y >> 3) + search_position_start_y;
+            context_ptr->sparse_search_level_0_end_y   = (*me_mv_y >> 3) + search_position_end_y;
+
+#endif
             md_full_pel_search(pcs_ptr,
                 context_ptr,
                 input_picture_ptr,
@@ -5393,10 +5423,10 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
                 ref_idx,
                 *me_mv_x,
                 *me_mv_y,
-                -(((sparse_search_level_0_area_width   >> 1 ) / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step),
-                +(((sparse_search_level_0_area_width   >> 1 ) / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step),
-                -(((sparse_search_level_0_area_height  >> 1 ) / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step),
-                +(((sparse_search_level_0_area_height  >> 1 ) / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step),
+                search_position_start_x,
+                search_position_end_x,
+                search_position_start_y,
+                search_position_end_y,
                 context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step,
 #if SEARCH_TOP_N
                 0,
@@ -5440,7 +5470,7 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
                 search_position_end_x,
                 search_position_start_y,
                 search_position_end_y,
-                context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step,//  context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_enabled ? context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step : context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step,
+                context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step,
 #if SEARCH_TOP_N
                 0,
 #endif
