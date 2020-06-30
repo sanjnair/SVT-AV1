@@ -598,7 +598,7 @@ extern "C" {
 #define ME_USE_NSC_SETTING         1 // 
 #define FIX_HIGH_MOTION            1
 
-#define OPTIMIZE_SPARSE_SEARCH     1
+#define OPTIMIZE_SPARSE_SEARCH     0
 #define FIX_TOP_N_SEARCH           0
 
 #define TOWARDS_FINAL_0            0
