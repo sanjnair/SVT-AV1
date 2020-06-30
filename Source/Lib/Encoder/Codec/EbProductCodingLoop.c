@@ -5339,18 +5339,15 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
                                     else if (ABS(mv->mv.as_mv.row) > 512 || ABS(mv->mv.as_mv.col) > 512) {
                                         search_area_multiplier = MAX(4, search_area_multiplier);
                                     }
-                                    //else if (ABS(mv->mv.as_mv.row) > 256 || ABS(mv->mv.as_mv.col) > 256) {
-                                    //    search_area_multiplier = MAX(3, search_area_multiplier);
-                                    //}
-                                    //else if (ABS(mv->mv.as_mv.row) > 128 || ABS(mv->mv.as_mv.col) > 128) {
-                                    //    search_area_multiplier = MAX(2, search_area_multiplier);
-                                    //}
-                                    //else if (ABS(mv->mv.as_mv.row) > 64 || ABS(mv->mv.as_mv.col) > 64) {
-                                    //    search_area_multiplier = MAX(1, search_area_multiplier);
-                                    //}
-
-
-
+                                    else if (ABS(mv->mv.as_mv.row) > 256 || ABS(mv->mv.as_mv.col) > 256) {
+                                        search_area_multiplier = MAX(3, search_area_multiplier);
+                                    }
+                                    else if (ABS(mv->mv.as_mv.row) > 128 || ABS(mv->mv.as_mv.col) > 128) {
+                                        search_area_multiplier = MAX(2, search_area_multiplier);
+                                    }
+                                    else if (ABS(mv->mv.as_mv.row) > 64 || ABS(mv->mv.as_mv.col) > 64) {
+                                        search_area_multiplier = MAX(1, search_area_multiplier);
+                                    }
                                 }
                             }
                         }
