@@ -5429,7 +5429,7 @@ void md_sq_motion_search(PictureControlSet *pcs_ptr, ModeDecisionContext *contex
                 +((sparse_search_level_1_area_width / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) >> 1,
                 -((sparse_search_level_1_area_height / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) >> 1,
                 +((sparse_search_level_1_area_height / context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) * context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step) >> 1,
-                context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step,
+                context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_enabled ? context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step : context_ptr->md_sq_motion_search_ctrls.sparse_search_level_1_step,
 #if SEARCH_TOP_N
                 0,
 #endif
