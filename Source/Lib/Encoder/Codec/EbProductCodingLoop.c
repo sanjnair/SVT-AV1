@@ -4593,7 +4593,7 @@ for (int32_t refinement_pos_x = search_position_start_x;
                 // If search level_0 previously performed
                 if (context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_enabled && context_ptr->md_sq_motion_search_ctrls.sparse_search_level_0_step == 4) {
                     // If level_0 range
-                    if (refinement_pos_x >= context_ptr->sparse_search_level_0_start_x && refinement_pos_x <= context_ptr->sparse_search_level_0_end_x && refinement_pos_y >= context_ptr->sparse_search_level_0_start_y && refinement_pos_y <= context_ptr->sparse_search_level_0_end_y)
+                    if ((refinement_pos_x + (mvx >> 3))>= context_ptr->sparse_search_level_0_start_x && (refinement_pos_x + (mvx >> 3)) <= context_ptr->sparse_search_level_0_end_x && (refinement_pos_y + (mvy >> 3)) >= context_ptr->sparse_search_level_0_start_y && (refinement_pos_y + (mvy >> 3)) <= context_ptr->sparse_search_level_0_end_y)
                         // If level_0 position
                         if (refinement_pos_x % 4 == 0 && refinement_pos_y % 4 == 0)
                             continue;
@@ -5538,7 +5538,13 @@ void md_subpel_search_pa_me_cand(PictureControlSet *pcs_ptr, ModeDecisionContext
                 }
             }
         }
-
+#if FIX_TOP_N_SEARCH
+        for (uint8_t best_mv_idx = 0; best_mv_idx < MIN(context_ptr->md_subpel_search_ctrls.half_pel_search_pos_cnt, valid_fp_pos_cnt); best_mv_idx++) {
+            context_ptr->md_motion_search_best_mv_cand[best_mv_idx].dist = context_ptr->md_motion_search_best_mv[best_mv_idx].dist;
+            context_ptr->md_motion_search_best_mv_cand[best_mv_idx].mvx = context_ptr->md_motion_search_best_mv[best_mv_idx].mvx;
+            context_ptr->md_motion_search_best_mv_cand[best_mv_idx].mvy = context_ptr->md_motion_search_best_mv[best_mv_idx].mvy;
+        }
+#endif
         for (uint8_t best_mv_idx = 0; best_mv_idx < MIN(context_ptr->md_subpel_search_ctrls.half_pel_search_pos_cnt, valid_fp_pos_cnt); best_mv_idx++) {
             md_sub_pel_search(
                 pcs_ptr,
@@ -5549,8 +5555,13 @@ void md_subpel_search_pa_me_cand(PictureControlSet *pcs_ptr, ModeDecisionContext
                 context_ptr->md_subpel_search_ctrls.use_ssd,
                 list_idx,
                 ref_idx,
+#if FIX_TOP_N_SEARCH
+                context_ptr->md_motion_search_best_mv_cand[best_mv_idx].mvx,
+                context_ptr->md_motion_search_best_mv_cand[best_mv_idx].mvy,
+#else
                 context_ptr->md_motion_search_best_mv[best_mv_idx].mvx,
                 context_ptr->md_motion_search_best_mv[best_mv_idx].mvy,
+#endif
                 -(context_ptr->md_subpel_search_ctrls.half_pel_search_width >> 1),
                 +(context_ptr->md_subpel_search_ctrls.half_pel_search_width >> 1),
                 -(context_ptr->md_subpel_search_ctrls.half_pel_search_height >> 1),
@@ -5624,6 +5635,14 @@ void md_subpel_search_pa_me_cand(PictureControlSet *pcs_ptr, ModeDecisionContext
             }
         }
 
+#if FIX_TOP_N_SEARCH
+        for (uint8_t best_mv_idx = 0; best_mv_idx < MIN(context_ptr->md_subpel_search_ctrls.quarter_pel_search_pos_cnt, valid_fp_pos_cnt); best_mv_idx++) {
+            context_ptr->md_motion_search_best_mv_cand[best_mv_idx].dist = context_ptr->md_motion_search_best_mv[best_mv_idx].dist;
+            context_ptr->md_motion_search_best_mv_cand[best_mv_idx].mvx = context_ptr->md_motion_search_best_mv[best_mv_idx].mvx;
+            context_ptr->md_motion_search_best_mv_cand[best_mv_idx].mvy = context_ptr->md_motion_search_best_mv[best_mv_idx].mvy;
+        }
+#endif
+
         for (uint8_t best_mv_idx = 0; best_mv_idx < MIN(context_ptr->md_subpel_search_ctrls.quarter_pel_search_pos_cnt, valid_fp_pos_cnt); best_mv_idx++) {
 #endif
         md_sub_pel_search(
@@ -5636,8 +5655,13 @@ void md_subpel_search_pa_me_cand(PictureControlSet *pcs_ptr, ModeDecisionContext
             list_idx,
             ref_idx,
 #if IMPROVE_QUARTER_PEL
+#if FIX_TOP_N_SEARCH
+            context_ptr->md_motion_search_best_mv_cand[best_mv_idx].mvx,
+            context_ptr->md_motion_search_best_mv_cand[best_mv_idx].mvy,
+#else
             context_ptr->md_motion_search_best_mv[best_mv_idx].mvx,
             context_ptr->md_motion_search_best_mv[best_mv_idx].mvy,
+#endif
 #else
             best_search_mvx,
             best_search_mvy,
@@ -5693,6 +5717,14 @@ void md_subpel_search_pa_me_cand(PictureControlSet *pcs_ptr, ModeDecisionContext
                 }
             }
 
+#if FIX_TOP_N_SEARCH
+            for (uint8_t best_mv_idx = 0; best_mv_idx < MIN(context_ptr->md_subpel_search_ctrls.eight_pel_search_pos_cnt, valid_fp_pos_cnt); best_mv_idx++) {
+                context_ptr->md_motion_search_best_mv_cand[best_mv_idx].dist = context_ptr->md_motion_search_best_mv[best_mv_idx].dist;
+                context_ptr->md_motion_search_best_mv_cand[best_mv_idx].mvx = context_ptr->md_motion_search_best_mv[best_mv_idx].mvx;
+                context_ptr->md_motion_search_best_mv_cand[best_mv_idx].mvy = context_ptr->md_motion_search_best_mv[best_mv_idx].mvy;
+            }
+#endif
+
             for (uint8_t best_mv_idx = 0; best_mv_idx < MIN(context_ptr->md_subpel_search_ctrls.eight_pel_search_pos_cnt, valid_fp_pos_cnt); best_mv_idx++) {
 #endif
             md_sub_pel_search(
@@ -5705,8 +5737,13 @@ void md_subpel_search_pa_me_cand(PictureControlSet *pcs_ptr, ModeDecisionContext
                 list_idx,
                 ref_idx,
 #if IMPROVE_EIGHT_PEL
+#if FIX_TOP_N_SEARCH
+                context_ptr->md_motion_search_best_mv_cand[best_mv_idx].mvx,
+                context_ptr->md_motion_search_best_mv_cand[best_mv_idx].mvy,
+#else
                 context_ptr->md_motion_search_best_mv[best_mv_idx].mvx,
                 context_ptr->md_motion_search_best_mv[best_mv_idx].mvy,
+#endif
 #else
                 best_search_mvx,
                 best_search_mvy,

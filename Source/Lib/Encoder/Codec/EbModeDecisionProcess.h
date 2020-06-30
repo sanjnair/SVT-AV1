@@ -757,6 +757,9 @@ typedef struct ModeDecisionContext {
 #if SEARCH_TOP_N
     MdMotionSearchResults md_motion_search_best_mv[MD_MOTION_SEARCH_MAX_BEST_MV];
 #endif
+#if FIX_TOP_N_SEARCH
+    MdMotionSearchResults md_motion_search_best_mv_cand[MD_MOTION_SEARCH_MAX_BEST_MV];
+#endif
 #endif
 #if !PRUNING_PER_INTER_TYPE
 #if ADD_BEST_CAND_COUNT_SIGNAL
